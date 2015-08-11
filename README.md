@@ -1,7 +1,7 @@
 WPAdverts Classifieds Plugin - Snippets
 ========================
 
-This is official library of useful code snippets for [http://wpadverts.com/](WPAdverts - WordPress Classifieds Plugin), the codes here modify default WPAdverts behavior in some way.
+This is official library of useful code snippets for [WPAdverts - WordPress Classifieds Plugin](http://wpadverts.com/), the codes here modify default WPAdverts behavior in some way.
 
 Most of the codes here will never make it into default WPAdverts version mainly because they provide some functionality that only handful of users will find useful.
 
