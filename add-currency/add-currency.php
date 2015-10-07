@@ -25,5 +25,5 @@ function add_adverts_currency($list) {
         "label"=>"Botswana pula" // currency long name
     );
     
-    return $list
+    return $list;
 }
