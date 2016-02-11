@@ -37,8 +37,9 @@ function custom_new_user_notification( $user_id, $deprecated = null, $notify = '
 
 }
 
-if ( !function_exists('wp_new_user_notification') ) :
-    function wp_new_user_notification() {
-    
-    }
-endif;
+add_action( "init", "custom_registration_email_init", 20 );
+
+function custom_registration_email_init() {
+    remove_action( 'adverts_new_user_notification', 'wp_new_user_notification' );
+    add_action( 'adverts_new_user_notification', 'custom_new_user_notification', 10, 3 );
+}
