@@ -13,6 +13,17 @@ if( is_admin() ) {
     add_action( "wp_ajax_mal_sync", 'mal_sync_ajax' );
 }
 
+/**
+ * Insert menu it in Tools tab
+ * 
+ * This function is executed by admin_menu filter
+ * 
+ * @see admin_menu filter
+ * 
+ * @since 1.0
+ * @access public
+ * @return void
+ */
 function mal_sync_admin_init() {
     add_management_page(
         __( 'MAL Sync', 'mal-sync' ),
@@ -23,6 +34,14 @@ function mal_sync_admin_init() {
     );
 }
 
+/**
+ * Displays wp-admin / Tools / MAL Sync page content
+ * 
+ * @global wpdb $wpdb
+ * @since 1.0
+ * @access public
+ * @return void
+ */
 function mal_sync_page() {
     global $wpdb;
 
@@ -34,7 +53,7 @@ function mal_sync_page() {
     } else {
         $exists = false;
     }
-    $exists = false;
+    
     if( adverts_request( "create-table") == "1" && ! $exists ) {
         
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
@@ -70,7 +89,7 @@ function mal_sync_page() {
             <?php _e( "Geolocation table does not exist!", "mal-sync" ) ?>
         </p>
         
-        <a href="<?php echo add_query_arg("create-table", "1") ?>" class="button mal-sync-table-create"><?php _e( "Create NOW", "mal-sync" ) ?></a>
+        <a href="<?php echo add_query_arg("create-table", "1") ?>" class="button mal-sync-table-create"><?php _e( "Create Now!", "mal-sync" ) ?></a>
     
         <?php if( $error ): ?>
         <p class="mal-sync-error">
@@ -222,6 +241,14 @@ function mal_sync_page() {
     <?php
 }
 
+/**
+ * AJAX action mal_sync
+ * 
+ * @global wpdb $wpdb
+ * @since 1.0
+ * @access public
+ * @return void
+ */
 function mal_sync_ajax() {
     global $wpdb;
 
@@ -295,13 +322,26 @@ function mal_sync_ajax() {
     exit;
 }
 
+/**
+ * Updates post geolocation data
+ * 
+ * The data is inserted (if not set), updated (if set but differes from existing data)
+ * not modified if current and "new" geo data is the same.
+ * 
+ * @param int $post_id Post ID
+ * @param double $lat Latitude
+ * @param double $lng Longitude
+ * @param stdClass $geo stdClass with current post geo location data or null
+ * @param string $type Meta source either "term" or "meta".
+ * @return array Message and type
+ */
 function mal_sync_ajax_update( $post_id, $lat, $lng, $geo, $type ) {
 
     if( $geo === null ) {
         wpadverts_mal_save_latlng( $post_id, $lat, $lng );
         return array(
             "type" => "notice",
-            "message" => sprintf( __( "INSERTED from %s meta.", "mal-sync" ), $type )
+            "message" => sprintf( __( "INSERTED (from %s meta).", "mal-sync" ), $type )
         );
     }
 
@@ -309,7 +349,7 @@ function mal_sync_ajax_update( $post_id, $lat, $lng, $geo, $type ) {
         wpadverts_mal_save_latlng( $post_id, $lat, $lng );
         return array(
             "type" => "notice",
-            "message" => sprintf( __( "UPDATED from %s meta.", "mal-sync" ), $type )
+            "message" => sprintf( __( "UPDATED (from %s meta).", "mal-sync" ), $type )
         );
     }
 
@@ -319,11 +359,20 @@ function mal_sync_ajax_update( $post_id, $lat, $lng, $geo, $type ) {
     );
 }
 
+/**
+ * Delete geo location data if post has it unset.
+ * 
+ * @param int $post_id Post ID
+ * @param double $lat Latitude
+ * @param double $lng Longitude
+ * @param stdClass $geo stdClass with current post geo location data or null
+ * @return array Message and type
+ */
 function mal_sync_ajax_delete( $post_id, $lat, $lng, $geo ) {
     if( $geo === null ) {
         return array(
             "type" => "info",
-            "message" => __( "NOT SET.", "mal-sync" )
+            "message" => __( "OK (data not set).", "mal-sync" )
         );
     } else {
         wpadverts_mal_delete_latlng( $post_id );

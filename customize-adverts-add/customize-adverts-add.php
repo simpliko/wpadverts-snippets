@@ -36,6 +36,10 @@ function customize_adverts_add( $form ) {
   }
 
   foreach( $form["field"] as $key => $field ) {
-    
+    if( $field["name"] == "" ) {
+        
+    }
   }
+
+  return $form;
 }
