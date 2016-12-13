@@ -98,6 +98,7 @@ function limit_listings_validator( $value ) {
     $args = array(
         'post_type' => 'advert',
         'post_status' => 'any',
+        'author' => get_current_user_id(),
 
         // Using the date_query to filter posts from last week
         'date_query' => array(
