@@ -30,13 +30,16 @@ function moderate_once( $out, $pairs, $atts ) {
     }
 
     // 2. check if user has at least one Advert with status publish or expired, if not return $out;
-
-if(get_posts(array('author'=>$current_user->ID,'post_type'=>'advert','post_status'=>'publish'))) {
- return $out;
-}
-
-
-
+    $posts = get_posts( array(
+        'author' => get_current_user_id(),
+        'post_type' => 'advert',
+        'post_status' => array("publish", "expired"),
+        'posts_per_page' => 1
+    ) );
+    
+    if( empty( $posts ) ) {
+        return $out;
+    }
 
 
     $out["moderate"] = 0;
