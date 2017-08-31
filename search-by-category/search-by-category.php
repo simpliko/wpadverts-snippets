@@ -37,9 +37,7 @@ function search_by_category_form_load( $form ) {
             "search_type" => "full" 
         )
     );
-    
-    add_action( "wp_footer", "search_by_category_footer" );
-    
+
     return $form;
 }
 
@@ -68,21 +66,3 @@ function search_by_category_query( $args ) {
     return $args;
 }
 
-/**
- * Display some additional styling in footer
- * 
- * This code should display in your theme footer to add some nice styling
- * to the category dropdown.
- * 
- * return void
- */
-function search_by_category_footer() {
-    ?>
-    <style type="text/css">
-    .advert-input.advert-input-type-full {
-       width: 100% !important;
-       margin: 1em 0 0 0 !important;
-    }
-    </style>
-    <?php
-}
