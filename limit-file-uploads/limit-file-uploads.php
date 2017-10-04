@@ -1,52 +1,83 @@
 <?php
 /**
 Plugin Name: WPAdverts Snippets - Limit File Uploads
-Version: 1.0
+Version: 1.1
 Author: Greg Winiarski
-Description: Limits number of files user can upload to gallery.
+Description: Sets various validators on the Gallery field. This snippet requires WPAdverts 1.2 or newer.
 */
 
-// The code below you can paste in your theme functions.php or create
-// new plugin and paste the code there.
-
-// Set maximum number of file uploads allowed below.
-// Default is five which means users can upload max 5 images per ad.
-define("LIMIT_FILE_UPLOADS", 5);
-
-// Apply this validation only to WPAdverts file uploads.
-add_filter("adverts_gallery_upload_prefilter", "limit_file_uploads");
+// register validators in the [adverts_add] form.
+add_filter( "adverts_form_load", "limit_file_uploads" );
 
 /**
- * Checks if current Ad reached max file uploads
+ * Adds file upload validators
  * 
- * The $file variable should be an item from $_FILES array.
+ * This function is executed using "adverts_form_load" and registers file
+ * upload validators in the [adverts_add] form in the Gallery field.
  * 
- * @param array $file Item from $_FILES array
- * @return array
+ * @see adverts_form_load
+ * 
+ * @param array $form   Form scheme
+ * @return array        Customize form scheme
  */
-function limit_file_uploads( $file ) {
-
-    if ( !isset($file["name"]) || !isset($file["type"]) ) {
-        return $file;
+function limit_file_uploads( $form ) {
+    
+    if( $form['name'] != "advert" ) {
+        return $form;
     }
 
-    if ( !isset( $_POST["post_id"] ) ) {
-        $post_id = 0;
-    } else {
-        $post_id = intval($_POST["post_id"]);
+    foreach( $form["field"] as $key => $field ) {
+        if( $field["name"] != "gallery" ) {
+            continue;
+        }
+        
+        if( ! is_array( $form["field"][$key]["validator"] ) ) {
+            $form["field"][$key]["validator"] = array();
+        }
+        
+        // Set minimum and maximum nuber of files user can upload.
+        // Note. setting the "min" value basically makes the gallery a required field.
+        $form["field"][$key]["validator"][] = array(
+            "name" => "upload_limit",
+            "params" => array( 
+                "min" => 1,     // minimum files to upload
+                "max" => 20     // maximum file uploads
+            )
+        );
+        
+        // Set minimum and maximum file upload size.
+        // Note. this is a limit for an individual file, not whole gallery field.
+        $form["field"][$key]["validator"][] = array(
+            "name" => "upload_size",
+            "params" => array( 
+                "min_size" => null,     // minimum file size
+                "max_size" => "2MB"     // maximum file size
+            )
+        );
+        
+        // Set allowed file types
+        // The "allowed" param accepts only: image, video and audio.
+        $form["field"][$key]["validator"][] = array(
+            "name" => "upload_type",
+            "params" => array( 
+                "allowed" => array( "image", "video", "audio" ), // file groups 
+                "extensions" => array( "pdf", "doc", "docx" )    // individaul file extensions if different than "allowed"
+            )
+        );
+        
+        $form["field"][$key]["validator"][] = array(
+            "name" => "upload_dimensions",
+            "params" => array( 
+                "strict" => 1,          // disallow file upload if WP cannot get image dimensions
+                "min_width" => 64,      // minimum image width
+                "max_width" => null,    // maximum image width
+                "min_height" => 64,     // minimum image height
+                "max_height" => null    // maximum image height
+            )
+        );
+        
+        break;
     }
-    
-    if( $post_id < 1 ) {
-        // first image upload.
-        return $file;
-    }
-    
-    $attachments = get_children( array( 'post_parent' => $post_id ) );
-    $images = count( $attachments );
-    
-    if( $images >= LIMIT_FILE_UPLOADS ) {
-        $file["error"] = sprintf( "You cannot upload more than %d images.", LIMIT_FILE_UPLOADS );
-    }
-    
-    return $file;
+
+    return $form;
 }
