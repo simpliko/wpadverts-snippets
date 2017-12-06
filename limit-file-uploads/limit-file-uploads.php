@@ -31,9 +31,7 @@ function limit_file_uploads( $form ) {
             continue;
         }
         
-        if( ! is_array( $form["field"][$key]["validator"] ) ) {
-            $form["field"][$key]["validator"] = array();
-        }
+        $form["field"][$key]["validator"] = array();
         
         // Set minimum and maximum nuber of files user can upload.
         // Note. setting the "min" value basically makes the gallery a required field.
@@ -51,10 +49,10 @@ function limit_file_uploads( $form ) {
             "name" => "upload_size",
             "params" => array( 
                 "min_size" => null,     // minimum file size
-                "max_size" => "2MB"     // maximum file size
+                "max_size" => "4MB"     // maximum file size
             )
         );
-        
+
         // Set allowed file types
         // The "allowed" param accepts only: image, video and audio.
         $form["field"][$key]["validator"][] = array(
