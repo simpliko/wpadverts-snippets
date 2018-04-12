@@ -6,10 +6,32 @@
  * Author: Greg Winiarski
  */
 
+/**
+ * DOWNLOAD:
+ * You can download this extension using the link below:
+ * https://wpadverts.com/snippets/dependant-taxonomy-dropdown.zip
+ * 
+ * INSTALLATION:
+ * In order to install downloaded extension go to wp-admin / Plugins / Add New / Upload panel
+ * and upload and activate it from there.
+ */
+
 add_action( "init", "dependant_taxonomy_dropdown_init", 1000 );
 add_filter( "adverts_form_load", "dependant_taxonomy_dropdown_form_load" );
 
+/**
+ * Initiates taxonomy dropdown
+ * 
+ * This function is executed by the "init" action.
+ * 
+ * @since 1.0
+ * @return void
+ */
 function dependant_taxonomy_dropdown_init() {
+   
+    if( ! defined( "ADVERTS_PATH" ) ) {
+        return;
+    }
     
     if( function_exists( "wpadverts_snippet_run") ) {
         $url = plugins_url()  .'/wpadverts-snippets';
@@ -35,6 +57,15 @@ function dependant_taxonomy_dropdown_init() {
     add_action('wp_ajax_nopriv_dependant_taxonomy_dropdown', 'dependant_taxonomy_dropdown_ajax');
 }
 
+/**
+ * Dependant Taxonomy Dropdown Field HTML
+ * 
+ * This function renders the dependend taxonomy dropdown in the form.
+ * 
+ * @since 1.0
+ * @param array $field
+ * @return void
+ */
 function dependant_taxonomy_dropdown( $field ) {
     
     wp_enqueue_script( 'dependant-taxonomy-dropdown' );
@@ -46,12 +77,11 @@ function dependant_taxonomy_dropdown( $field ) {
         $value = $field["value"];
     }
     
-    
     echo '<style type="text/css">
-    label[for=advert_category] { float: left !important }
+    label[for="'.$field["name"].'"] { float: left !important }
     .dependant-taxonomy-dropdown > select { width: 92% !important; margin: 0 0 5px 0 }
     </style>';
-    echo '<div class="dependant-taxonomy-dropdown-ui" data-taxonomy="'.$field["name"].'">';
+    echo '<div class="dependant-taxonomy-dropdown-ui" data-taxonomy="'.$field["dtd_use_taxonomy"].'">';
     echo '<div class="dependant-taxonomy-dropdown"></div>';
     adverts_field_hidden( array(
         "name" => $field["name"],
@@ -62,6 +92,17 @@ function dependant_taxonomy_dropdown( $field ) {
     echo '</div>';
 }
 
+/**
+ * Returns options for the taxonomy dropdown (<select>)
+ * 
+ * This function is used to get options for a dropdown, it can generate the options
+ * for any taxonomy
+ * 
+ * @since   1.0
+ * @param   string    $taxonomy   Taxonomy Name
+ * @param   int       $parent     Id of a parent taxonomy
+ * @return  array                 array of array( "value" => "", "text" => "", "depth" => 0 )
+ */
 function dependant_taxonomy_dropdown_taxonomies( $taxonomy = "advert_category", $parent = 0 ) {
     $args = array(
         'taxonomy'      => $taxonomy,
@@ -89,6 +130,18 @@ function dependant_taxonomy_dropdown_taxonomies( $taxonomy = "advert_category", 
     return $array;
 }
 
+/**
+ * Updates the [adverts_form] scheme
+ * 
+ * Registers the adverts_field_select_dependant field in [adverts_add] form.
+ * This function is executed by the adverts_form_load filter.
+ * 
+ * @see adverts_form_load filter
+ * 
+ * @since   1.0
+ * @param   array $form     Form scheme
+ * @return  array           Updated form scheme
+ */
 function dependant_taxonomy_dropdown_form_load( $form ) {
     if( $form["name"] != "advert" ) {
         return $form;
@@ -99,12 +152,27 @@ function dependant_taxonomy_dropdown_form_load( $form ) {
             $form["field"][$key]["type"] = "adverts_field_select_dependant";
             $form["field"][$key]["options_callback"] = null;
             $form["field"][$key]["options"] = array();
+            $form["field"][$key]["dtd_use_taxonomy"] = "advert_category";
         }
     }
     
     return $form;
 }
 
+/**
+ * AJAX dependant_taxonomy_dropdown action
+ * 
+ * This function is executed when server requests 
+ * /wp-admin/admin-ajax.php?action=dependant_taxonomy_dropdown
+ * 
+ * The function returns dependant dropdowns HTML based on "id" of currently
+ * selected category.
+ * 
+ * Note the function returns HTML for all the dropdowns.
+ * 
+ * @since 1.0
+ * @return void
+ */
 function dependant_taxonomy_dropdown_ajax() {
     $form_scheme = apply_filters( "adverts_form_scheme", Adverts::instance()->get("form"), array() );
     $taxonomy = adverts_request( 'taxonomy' );

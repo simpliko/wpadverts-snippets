@@ -23,11 +23,11 @@ DependantTaxonomyDropdown.prototype.OnChange = function( e ) {
         id = this.hidden.val();
     }
     
-    if( id === "" && jQuery( e.target ).prev().length > 0 ) {
+    if( id === "" && typeof e !== 'undefined' && jQuery( e.target ).prev().length > 0 ) {
         prev = jQuery( e.target ).prev();
     }
     
-    if( id === "" && prev !== null && prev.prop("tagName").toLowerCase() === "select" ) {
+    if( id === "" &&  prev !== null && prev.prop("tagName").toLowerCase() === "select" ) {
         id = prev.val();
     }
     
