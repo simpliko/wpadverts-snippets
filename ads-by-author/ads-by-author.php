@@ -1,7 +1,7 @@
 <?php
 /**
 Plugin Name: WPAdverts Snippets - Ads By Author
-Version: 1.0
+Version: 1.1
 Author: Greg Winiarski
 Description: Links "Posted By" on Ad details page, to page which displays all active ads posted by this author. Note this plugin requires WPAdverts 1.0.5 in order to work.
 */
@@ -46,7 +46,7 @@ function ads_by_author_init() {
  * @since 1.0
  * @return string Fully formatted HTML for adverts list
  */
-function ads_by_author_list( $params ) {
+function ads_by_author_list( $params = array() ) {
     $html = "";
     $params["search_bar"] = "disabled";
     $author = get_user_by( "id", adverts_request( "posted_by" ) );
