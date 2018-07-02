@@ -287,7 +287,7 @@ function preselect_ad_category_form_load( $form ) {
     
     foreach( $form["field"] as $key => $field ) {
         if( $field["name"] == "advert_category" ) {
-            $form["field"][$key]["attr"]["disabled"] = "disabled";
+            $form["field"][$key]["attr"]["readonly"] = "readonly";
             $form["field"][$key]["value"] = $term->term_id;
             $form["field"][$key]["max_choices"] = 1;
         }
