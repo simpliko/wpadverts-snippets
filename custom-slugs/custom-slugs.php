@@ -7,7 +7,7 @@
  */
 
 add_action("adverts_post_type", "customize_adverts_post_type", 10, 2);
-add_action("adverts_register_taxonomy", "customize_adverts_taxonomy");
+add_action("adverts_register_taxonomy", "customize_adverts_taxonomy", 10, 2 );
 
 /**
  * Changes ads url from "advert" to "classified"
@@ -55,14 +55,19 @@ function customize_adverts_post_type( $args, $type = null ) {
  * @see register_taxonomy()
  * @link https://codex.wordpress.org/Function_Reference/register_taxonomy
  * 
- * @param array $args Parameters that will passed to register_taxonomy function
+ * @param array     $args   Parameters that will passed to register_taxonomy function
+ * @param string    $type   Custom taxonomy name
  * @return array
  */
-function customize_adverts_taxonomy( $args ) {
-   if(!isset($args["rewrite"])) {
-      $args["rewrite"] = array();
-   }
+function customize_adverts_taxonomy( $args, $type = null ) {
+    if( $type != "advert_category" ) {
+        return $args;
+    }
+    
+    if(!isset($args["rewrite"])) {
+        $args["rewrite"] = array();
+    }
    
-   $args["rewrite"]["slug"] = "ad-category";
-   return $args;
+    $args["rewrite"]["slug"] = "ad-category";
+    return $args;
 }
