@@ -6,7 +6,7 @@
  * Author: Greg Winiarski
  */
 
-add_action("adverts_post_type", "customize_adverts_post_type");
+add_action("adverts_post_type", "customize_adverts_post_type", 10, 2);
 add_action("adverts_register_taxonomy", "customize_adverts_taxonomy");
 
 /**
@@ -24,16 +24,21 @@ add_action("adverts_register_taxonomy", "customize_adverts_taxonomy");
  * @see register_post_type()
  * @link https://codex.wordpress.org/Function_Reference/register_post_type
  * 
- * @param array $args Custom Post Type init params
+ * @param array     $args   Custom Post Type init params
+ * @param string    $type   Custom Post Type name
  * @return array
  */
-function customize_adverts_post_type( $args ) {
-   if(!isset($args["rewrite"])) {
-      $args["rewrite"] = array();
-   }
+function customize_adverts_post_type( $args, $type = null ) {
+    if( $type != "advert" ) {
+        return $args;
+    }
+    
+    if(!isset($args["rewrite"])) {
+        $args["rewrite"] = array();
+    }
    
-   $args["rewrite"]["slug"] = "classified";
-   return $args;
+    $args["rewrite"]["slug"] = "classified";
+    return $args;
 }
 
 /**
