@@ -42,14 +42,14 @@ function limit_file_uploads( $form ) {
                 "max" => 20     // maximum file uploads
             )
         );
-        
+
         // Set minimum and maximum file upload size.
         // Note. this is a limit for an individual file, not whole gallery field.
         $form["field"][$key]["validator"][] = array(
             "name" => "upload_size",
             "params" => array( 
-                "min_size" => null,     // minimum file size
-                "max_size" => "4MB"     // maximum file size
+                "min" => null,     // minimum file size
+                "max" => "4MB"     // maximum file size
             )
         );
 
