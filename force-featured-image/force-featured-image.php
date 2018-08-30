@@ -58,8 +58,8 @@ function force_featured_image( $post_id ) {
     
     $children = get_children( array( 'post_parent' => $post_id ) );
     
-    foreach( $children as $child ) {
-        update_post_meta( $post_id, '_thumbnail_id', $child->ID );
+    if( isset( $children[0] ) ) {
+        update_post_meta( $post_id, '_thumbnail_id', $children[0]->ID );
         return 1;
     }
     
