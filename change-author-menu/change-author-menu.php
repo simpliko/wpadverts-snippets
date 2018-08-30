@@ -3,39 +3,77 @@
 Plugin Name: WPAdverts Snippets - Change Author Menu
 Version: 1.0
 Author: Greg Winiarski
-Description: This plugin allows to manage Author dashboard. 
+Description: This plugin allows modifying links and content in the [adverts_authors_manage] shortcode.
 */
 
 // Change menu in Author dashboard
-add_filter( "adverts_authors_dashboard_menu", "change_author_dashboard_menu" );
-function change_author_dashboard_menu( $menu ) {
-    
+add_filter( "adverts_authors_dashboard_menu", "change_author_menu_init", 10, 2 );
+
+/**
+ * Customizes menu in the [adverts_authors_manage] shortcode
+ * 
+ * This function is being called by the adverts_authors_dashboard_menu filter
+ * 
+ * Menu array keys available by default:
+ * 
+ * - home               Dashboard
+ * - my-ads             My Ads
+ * - edit-account       Edit Profile
+ * - change-password    Change Password
+ * - delete-account     Delete Account
+ * - logout             Logout
+ * 
+ * @see adverts_authors_dashboard_menu filter
+ * 
+ * @param array     $menu               [adverts_authors_manage] menu items
+ * @param array     $shortcode_atts     [adverts_authors_manage] shortcode parameters
+ * @return array                        Updated $menu
+ */
+function change_author_menu_init( $menu, $shortcode_atts ) {
+
     // Remove delete account link from menu
     unset( $menu['delete-account'] );
     
     // Change icon for My Ads option to bell
     $menu['my-ads']['icon'] = 'adverts-icon-bell';
 
+    // Change function called to render Dashboard menu
+    $menu['home']['callback'] = 'change_author_menu_redefine_default';
+    
     // Add new custom menu option
-    $page_slug = "custom-page"; // use small letters and - symbol only! There can be two option with same slug!
+    $url = get_the_permalink( adverts_config( "authors.author_dashboard_page_id" ) );
+    
+    // Set custom page slug
+    // Slug may contain lowercase a-z, 0-9 and "-" characters only
+    // The slug needs to be unique
+    $page_slug = "custom-page"; 
+    
     $menu[$page_slug] = array(
         "label" => __("Custom Menu", "wpadverts-authors"),
-        "href"  => get_the_permalink( adverts_config( "authors.author_dashboard_page_id" ) ) . "?author-panel=" . $page_slug,
+        "href"  =>  add_query_arg( "author-panel", $page_slug, $url ),
         "icon"  => "adverts-icon-box",
+        "callback" => "change_author_menu_custom_content"
     );
     
     // Always return $menu!
     return $menu; 
 }
 
-// Define content for custom panel
-add_filter( "adverts_authors_dashboard_content", "define_custom_panel_content", 10, 2 );
-function define_custom_panel_content( $content, $panel ) {
+/**
+ * Define content for custom panel
+ * 
+ * This function will be called when [adverts_authors_manage] will want to render
+ * content for your "custom-page"
+ * 
+ * @param   string $panel   Name of the panel that will be rendered
+ * @return  string          HTML for the panel
+ */
+function change_author_menu_custom_content( $panel ) {
     
     // if $panel is different from our $page_slug we return content
     // user is accessing one of the default pages and we do not want to change this
     if($panel != 'custom-page') {
-        return $content;
+        return "";
     }
     
     // Prepare variables for content - do the PHP logic here
@@ -44,35 +82,30 @@ function define_custom_panel_content( $content, $panel ) {
     
     // Prepare new content - you can use HTML or include existing PHP file using include_once function
     ob_start();
-        ?>
-            <a href="<?php echo $url; ?>"> <?php echo esc_html( $msg ); ?> </a>
-        <?php 
+    ?>
+        <a href="<?php echo $url; ?>"> <?php echo esc_html( $msg ); ?> </a>
+    <?php 
     $content = ob_get_clean();
     
     // Always return $content!
     return $content;
 }
 
-// Change existing panel
-add_filter( "adverts_authors_dashboard_content", "redefine_default_panel_content", 10, 2 );
-function redefine_default_panel_content( $content, $panel ) {
-    
+/**
+ * Custom content for [adverts_authors_manage] dashboard
+ * 
+ * This function is being assigned in change_author_menu_init() function 
+ * 
+ * @see change_author_menu_init()
+ * 
+ * @param   string $panel   Name of the panel that will be rendered
+ * @return  string          HTML for the panel
+ */
+function change_author_menu_redefine_default( $panel ) {
     // we want to change only default home page
     if($panel != 'home') {
-        return $content;
+        return "";
     }
     
-    // Prepare variables for content - do the PHP logic here
-    $msg = __( "Click me!" );
-    $url = "http://wpadverts.com";
-    
-    // Prepare new content - you can use HTML or include existing PHP file using include_once function
-    ob_start();
-        ?>
-            <a href="<?php echo $url; ?>"> <?php echo esc_html( $msg ); ?> </a>
-        <?php 
-    $content = ob_get_clean();
-    
-    // Always return $content!
-    return $content;
+    return "Custom Dashboard!";
 }
