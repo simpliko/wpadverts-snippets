@@ -16,4 +16,4 @@ function wpadverts_snippet_run( $snippet ) {
     }
 }
 
-#wpadverts_snippet_run("limit-file-uploads");
+wpadverts_snippet_run("override-templates");

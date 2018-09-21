@@ -30,7 +30,9 @@ function override_templates( $tpl ) {
     $dirs[] = get_template_directory() . "/wpadverts/";
     // if nothing else use default template
     $dirs[] = ADVERTS_PATH . "/templates/";
-     
+    // use absolute path in case the full path to the file was passed
+    $dirs[] = dirname( $tpl ) . '/';
+    
     $basename = basename( $tpl );
      
     foreach($dirs as $dir) {
