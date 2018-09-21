@@ -16,4 +16,3 @@ function wpadverts_snippet_run( $snippet ) {
     }
 }
 
-wpadverts_snippet_run("override-templates");
