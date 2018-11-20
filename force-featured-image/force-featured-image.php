@@ -4,6 +4,7 @@
  * Plugin URI: https://wpadverts.com/
  * Description: This code snippet/plugin forces user to select a featured image or selects it for the user automatically.
  * Author: Greg Winiarski
+ * Version: 1.1.0
  */
 
 add_filter( "adverts_action_preview", "force_featured_image_add" );
@@ -57,9 +58,8 @@ function force_featured_image( $post_id ) {
     } 
     
     $children = get_children( array( 'post_parent' => $post_id ) );
-    
-    if( isset( $children[0] ) ) {
-        update_post_meta( $post_id, '_thumbnail_id', $children[0]->ID );
+    foreach( $children as $child ) {
+        update_post_meta( $post_id, '_thumbnail_id', $child->ID );
         return 1;
     }
     

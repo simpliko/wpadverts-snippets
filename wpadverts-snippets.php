@@ -16,4 +16,4 @@ function wpadverts_snippet_run( $snippet ) {
     }
 }
 
-wpadverts_snippet_run('pricing-per-capability');
+wpadverts_snippet_run('force-featured-image');
