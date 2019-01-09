@@ -4,7 +4,7 @@ jQuery(function($) {
         $( ".adverts-button.adverts-show-contact").hide();
     }
     if( $( ".adverts-button.adverts-show-contact-form").length > 0 ) {
-        $( ".adverts-button.adverts-show-contact-form").click();
+        $( ".adverts-contact-box").css( "display", "block" );
         $( ".adverts-button.adverts-show-contact-form").hide();
     }
 });
