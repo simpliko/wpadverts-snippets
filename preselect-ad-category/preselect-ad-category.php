@@ -112,6 +112,10 @@ function preselect_ad_category_save( $term_id ) {
  */
 function preselect_ad_category_shortcode( $atts ) {
     
+    if( ! is_array( $atts ) ) {
+        $atts = array();
+    }
+    
     $term_slug =  trim( adverts_request( "preselected_category" ) );
     $is_preselected = false;
     $flash = array(
