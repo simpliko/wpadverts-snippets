@@ -1,7 +1,7 @@
 <?php
 /**
 Plugin Name: WPAdverts Snippets - Pricing Per Capability
-Version: 1.0
+Version: 1.1
 Author: Greg Winiarski
 Description: Allows users to use pricing only if they have required capabilities.
 */
@@ -27,6 +27,7 @@ class Pricing_Per_Capability {
      */
     public function init() {
         add_filter( "wpadverts_filter_pricings", array( $this, "filter_pricings" ) );
+        add_filter( "wpadverts_filter_renewals", array( $this, "filter_renewals" ) );
     }
     
     /**
@@ -103,6 +104,17 @@ class Pricing_Per_Capability {
                 unset( $pricings->posts[$key] );
                 $pricings->post_count--;
                 $pricings->found_posts--;
+            }
+        }
+        
+        return $pricings;
+    }
+    
+    public function filter_renewals( $pricings ) {
+        
+        foreach( $pricings as $key => $pricing ) {
+            if( ! $this->can_use( $pricing ) ) {
+                unset( $pricings[$key] );
             }
         }
         
