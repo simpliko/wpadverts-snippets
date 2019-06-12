@@ -2,7 +2,7 @@
 /**
 Plugin Name: WPAdverts Snippets - Custom Search
 Version: 1.0
-Author: Greg Winiarski, Tim Sombroek
+Author: Greg Winiarski, Thijs Terluin
 Description: Allows searching [adverts_list] by passing a 'custom' param with a JSON string for example [adverts_list custom='"cat": "Motorcycles", "type": "Sport", "adverts_location": "The Netherlands", "adverts_price": LE::NUMERIC::10000}'].
 */
 
