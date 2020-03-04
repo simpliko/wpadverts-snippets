@@ -4,6 +4,7 @@
  * Plugin URI: https://wpadverts.com/
  * Description: Allows preselcting category in [adverts_add] shortcode, this allows using some custom form per category.
  * Author: Greg Winiarski
+ * Version: 1.1.0
  */
 
 if(is_admin()) {
@@ -24,6 +25,7 @@ add_action( "init", "preselect_ad_category_init", 20 );
 function preselect_ad_category_init() {
     remove_shortcode( "adverts_add" );
     add_shortcode( "adverts_add", "preselect_ad_category_shortcode" );
+    add_filter( "shortcode_atts_adverts_list", "preselect_ad_category_atts", 9000 );
 }
 
 /**
@@ -35,7 +37,7 @@ function preselect_ad_category_init() {
  * @return void
  */
 function preselect_ad_category_init_admin() {
-    add_action( 'advert_category_edit_form_fields', 'preselect_ad_category_edit_meta_field', 10, 2 );
+    add_action( 'advert_category_edit_form_fields', 'preselect_ad_category_edit_meta_fields', 10, 2 );
     add_action( 'edited_advert_category', 'preselect_ad_category_save', 10, 2 );  
 }
 
@@ -50,7 +52,7 @@ function preselect_ad_category_init_admin() {
  * 
  * @param WP_Term $term     Term being edited
  */
-function preselect_ad_category_edit_meta_field( $term ) {
+function preselect_ad_category_edit_meta_fields( $term ) {
     
     $loop = new WP_Query(array(
         'post_type' => 'wpadverts-form',
@@ -69,6 +71,31 @@ function preselect_ad_category_edit_meta_field( $term ) {
         </th>
         <td>
             <select name="category_form_scheme">
+                <option value=""><?php _e( "Default", "preselect_ad_category" ) ?></option>
+                <?php foreach( $loop->posts as $scheme ): ?>
+                <option value="<?php echo esc_attr($scheme->ID) ?>" <?php selected($scheme->ID, $term_id) ?>><?php echo esc_html($scheme->post_title) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </td>
+    </tr>
+    <?php
+    
+    $loop = new WP_Query(array(
+        'post_type' => 'wpadverts-form',
+        'post_status' => array('wpad-form-search'),
+        'posts_per_page' => -1
+    ));
+
+    $term_id = get_term_meta( $term->term_id, "category_form_scheme_search", true );
+    ?>
+    <tr class="form-field">
+        <th scope="row" valign="top">
+            <label for="category_form_scheme_search">
+                <?php _e( 'Form Scheme Search', 'preselect_ad_category' ); ?>
+            </label>
+        </th>
+        <td>
+            <select name="category_form_scheme_search">
                 <option value=""><?php _e( "Default", "preselect_ad_category" ) ?></option>
                 <?php foreach( $loop->posts as $scheme ): ?>
                 <option value="<?php echo esc_attr($scheme->ID) ?>" <?php selected($scheme->ID, $term_id) ?>><?php echo esc_html($scheme->post_title) ?></option>
@@ -96,6 +123,14 @@ function preselect_ad_category_save( $term_id ) {
         update_term_meta( $term_id, "category_form_scheme", $cfs );
     } else {
         delete_term_meta( $term_id, "category_form_scheme" ); 
+    }
+    
+    $cfss = intval( adverts_request( "category_form_scheme_search" ) );
+    
+    if ( $cfss > 0 ) {
+        update_term_meta( $term_id, "category_form_scheme_search", $cfss );
+    } else {
+        delete_term_meta( $term_id, "category_form_scheme_search" ); 
     }
 }
 
@@ -316,4 +351,27 @@ function preselect_ad_category_form_bind( $form ) {
     }
 
     $form->set_value( "advert_category", $term->term_id );
+}
+
+
+/**
+ * Applies form_scheme_id param to [adverts_list] shortcode
+ * 
+ * This function applies form_scheme_id param to the [adverts_list] shortcode
+ * when displaying it on the advert-category pages
+ * 
+ * @since   1.1.0
+ * @param   array   $out    Shortcode atts
+ * @return  array
+ */
+function preselect_ad_category_atts( $out ) {
+    if( is_tax( 'advert_category' ) ) {
+        $term_id = get_queried_object_id();
+        $form_id = get_term_meta( $term_id, "category_form_scheme_search", true );
+        
+        if( intval( $form_id ) > 0 ) {
+            $out["form_scheme_id"] = $form_id;
+        }
+    }
+    return $out;
 }
