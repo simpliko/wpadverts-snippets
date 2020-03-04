@@ -9,7 +9,7 @@ Description: Shows a list of related Ads on the Ad details page.
 // The code below you can paste in your theme functions.php or create
 // new plugin and paste the code there.
 
-add_action( "adverts_tpl_single_bottom", "related_ads_tpl_single_bottom", 1000 );
+add_action( "adverts_tpl_single_bottom", "related_ads_tpl_single_bottom", 9000 );
 
 /**
  * Displays "Related Ads" on the Ad details page.
@@ -20,7 +20,7 @@ add_action( "adverts_tpl_single_bottom", "related_ads_tpl_single_bottom", 1000 )
  * @return void
  */
 function related_ads_tpl_single_bottom( $post_id ) {
-    
+
     add_filter( "adverts_list_query", "related_ads_list_query" );
     
     echo '<h3>' . __( "Related Ads") . '</h3>';
