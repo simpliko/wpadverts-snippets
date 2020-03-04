@@ -15,7 +15,7 @@ function DependantTaxonomyDropdown( e ) {
 
 DependantTaxonomyDropdown.prototype.OnChange = function( e ) {
     var id = null;
-    var prev = null
+    var prev = null;
     
     if( typeof e !== 'undefined') {
         id = jQuery( e.target ).val();

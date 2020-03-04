@@ -17,7 +17,8 @@
  */
 
 add_action( "init", "dependant_taxonomy_dropdown_init", 1000 );
-add_filter( "adverts_form_load", "dependant_taxonomy_dropdown_form_load" );
+add_filter( "adverts_form_load", "dependant_taxonomy_dropdown_form_load", 9999 );
+add_filter( "adverts_form_load", "dependant_taxonomy_dropdown_form_load_search" );
 
 /**
  * Initiates taxonomy dropdown
@@ -70,13 +71,13 @@ function dependant_taxonomy_dropdown( $field ) {
     
     wp_enqueue_script( 'dependant-taxonomy-dropdown' );
     $value = 0;
-    
-    if( isset( $field["value"][0] ) ) {
+
+    if( is_array( $field["value"] ) && isset( $field["value"][0] ) ) {
         $value = $field["value"][0];
     } else if( isset( $field["value"] ) ) {
         $value = $field["value"];
     }
-    
+
     echo '<style type="text/css">
     label[for="'.$field["name"].'"] { float: left !important }
     .dependant-taxonomy-dropdown > select { width: 92% !important; margin: 0 0 5px 0 }
@@ -143,7 +144,24 @@ function dependant_taxonomy_dropdown_taxonomies( $taxonomy = "advert_category", 
  * @return  array           Updated form scheme
  */
 function dependant_taxonomy_dropdown_form_load( $form ) {
-    if( $form["name"] != "advert" ) {
+    if( $form["name"] != "advert" && $form["name"] != "search" ) {
+        return $form;
+    }
+
+    foreach( $form["field"] as $key => $field ) {
+        if( in_array( $field["name"], array( "adverts_location", "location" ) ) ) {
+            $form["field"][$key]["type"] = "adverts_field_select_dependant";
+            $form["field"][$key]["options_callback"] = null;
+            $form["field"][$key]["options"] = array();
+            $form["field"][$key]["dtd_use_taxonomy"] = "advert_location";
+        }
+    }
+    
+    return $form;
+}
+
+function dependant_taxonomy_dropdown_form_load_search( $form ) {
+    if( $form["name"] != "search" ) {
         return $form;
     }
     
@@ -156,7 +174,7 @@ function dependant_taxonomy_dropdown_form_load( $form ) {
         }
     }
     
-    return $form;
+    return $form; 
 }
 
 /**
@@ -186,7 +204,7 @@ function dependant_taxonomy_dropdown_ajax() {
     }
     
     $total = count( $tax_ids );
-    
+
     ob_start();
     for( $i = 0; $i < $total; $i++ ) {
         $tax_id = $tax_ids[$i];
@@ -221,3 +239,33 @@ function dependant_taxonomy_dropdown_ajax() {
     echo json_encode( $response );
     exit;
 }
+
+
+add_action( "save_post_advert", "my_mal_save_advert", 10, 3 );
+function my_mal_save_advert( $post_ID, $post, $update ) {
+        
+    if( !isset( $_POST ) || empty( $_POST ) ) {
+        return;
+    }
+
+    if( isset( $_POST['adverts_location'] ) ) {
+        
+        if( ! empty( $_POST['adverts_location'] ) ) {
+            $location = array( intval( $_POST['adverts_location'] ) );
+        } else {
+            $location = null;
+        }
+        wp_set_post_terms( $post_ID, $location, 'advert_location' );
+    }
+    
+    
+}
+add_action( "admin_footer", function() {
+    ?>
+<script type="text/javascript">
+    if( typeof adverts_frontend_lang === 'undefined' ) {
+        var adverts_frontend_lang = { ajaxurl: '<?php echo admin_url( 'admin-ajax.php' ) ?>' };
+    }
+</script>
+    <?php
+});
