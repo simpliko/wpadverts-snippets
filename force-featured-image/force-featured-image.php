@@ -57,6 +57,12 @@ function force_featured_image( $post_id ) {
         return -2;
     } 
     
+    $keys = get_post_meta( $post_id, '_adverts_attachments_order', true );
+    if( isset( $keys[0] ) ) {
+        update_post_meta( $post_id, '_thumbnail_id', $keys[0] );
+        return 1;
+    }
+    
     $children = get_children( array( 'post_parent' => $post_id ) );
     foreach( $children as $child ) {
         update_post_meta( $post_id, '_thumbnail_id', $child->ID );
