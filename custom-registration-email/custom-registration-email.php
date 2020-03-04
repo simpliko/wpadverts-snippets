@@ -1,4 +1,10 @@
 <?php
+/**
+Plugin Name: WPAdverts Snippets - Custom Registration Email
+Version: 1.0
+Author: Greg Winiarski
+Description: This plugin will restore the WordPress registration mechanism removed in WP 4.9.
+*/
 
 function custom_new_user_notification( $user_id, $deprecated = null, $notify = '', $password = null ) {
     if ( $deprecated !== null ) {
