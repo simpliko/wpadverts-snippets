@@ -48,12 +48,19 @@ function change_author_menu_init( $menu, $shortcode_atts ) {
     // The slug needs to be unique
     $page_slug = "custom-page"; 
     
-    $menu[$page_slug] = array(
+    $page_arr = array(
         "label" => __("Custom Menu", "wpadverts-authors"),
         "href"  =>  add_query_arg( "author-panel", $page_slug, $url ),
         "icon"  => "adverts-icon-box",
-        "callback" => "change_author_menu_custom_content"
+        "callback" => "change_author_menu_custom_content",
+        "order" => 90
     );
+    
+    // no longer needed since Authors 1.1.2
+    // the $menu is sorted using "order" param (default value 100)
+    // $menu = array_slice($menu, 0, 4, true) + array( $page_slug => $page_arr ) + array_slice( $menu, 3, count($menu) - 1, true) ;
+    
+    $menu[$page_slug] = $page_arr;
     
     // Always return $menu!
     return $menu; 
