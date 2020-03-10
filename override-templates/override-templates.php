@@ -23,9 +23,10 @@ add_action("adverts_template_load", "override_templates");
  */
 function override_templates( $tpl ) {
      
+    $upload_dir = wp_upload_dir();
     $dirs = array();
-    // first check in child-theme directory
-    $dirs[] = get_stylesheet_directory() . "/wpadverts/";
+    // take the custom templates that Joe built
+    $dirs[] = $upload_dir["basedir"] . "/wpadverts/";
     // next check in parent theme directory
     $dirs[] = get_template_directory() . "/wpadverts/";
     // if nothing else use default template
