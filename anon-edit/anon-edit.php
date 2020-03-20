@@ -18,6 +18,8 @@ class AnonEdit {
         add_action( "init", array( $this, "init" ), 200 );
         add_filter( "the_content", array( $this, "the_content" ), 2000 );
         
+        add_action('wp_ajax_nopriv_adverts_delete', 'adverts_delete');
+        
     }
     
     /**
@@ -58,23 +60,35 @@ class AnonEdit {
         remove_all_filters( 'save_post' );
 
         
-        $message = 'You are editing Ad <a href="%s">%s</a>.';
+        $message = 'You are editing Ad <a href="%s">%s</a>. No longer actual? <a href="%s" class="wpad-delete-now adverts-icon-trash">delete now</a>.';
+        
+        $delete_url = adverts_ajax_url();
+        $delete_params = array(
+            "action" => "adverts_delete",
+            "id" => $advert_id,
+            "redirect_to" => urlencode( get_permalink( adverts_config( "ads_list_id" ) ) . "?ad-deleted=1" ),
+            "_ajax_nonce" => wp_create_nonce( sprintf( 'wpadverts-delete-%d', $advert_id ) )
+        );
+        
+        $delete_link = add_query_arg( $delete_params, $delete_url );
         
         $adverts_flash = array(
             "error" => array(),
             "info" => array(
                 array(
                     "icon" => "adverts-icon-edit",
-                    "message" => sprintf( $message, get_permalink( $advert_id ), get_post( $advert_id )->post_title )
+                    "message" => sprintf( $message, get_permalink( $advert_id ), get_post( $advert_id )->post_title, $delete_link )
                 )
             )
         );
         
         ob_start();
         adverts_flash( $adverts_flash );
-        _adverts_manage_edit(array());
+        echo _adverts_manage_edit(array());
         echo '<link rel="stylesheet" id="editor-buttons-css" href="'.get_site_url().'/wp-includes/css/editor.min.css" type="text/css" media="all">';
         echo '<style type="text/css">.entry-content > p {display: none !important }</style>';
+        
+        add_action( "wp_footer", array( $this, "print_delete_js" ) );
         
         return ob_get_clean();
     }
@@ -118,6 +132,20 @@ class AnonEdit {
         );
         
         return add_query_arg( $args, $url );
+    }
+    
+    public function print_delete_js() {
+        ?>
+        <script type="text/javascript">
+            jQuery(function($) {
+                $(".wpad-delete-now").click(function(e) {
+                    if( ! confirm("Are you sure?") ) {
+                        e.preventDefault();
+                    }
+                });
+            });
+        </script>
+        <?php
     }
 }
 
