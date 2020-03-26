@@ -16,4 +16,7 @@ function wpadverts_snippet_run( $snippet ) {
     }
 }
 
-wpadverts_snippet_run('anon-edit');
+define( "PRESELECT_AD_CATEGORY_USE_DTD", 1 );
+
+//wpadverts_snippet_run('dependant-taxonomy-dropdown');
+//wpadverts_snippet_run('preselect-ad-category');

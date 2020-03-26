@@ -26,6 +26,10 @@ function preselect_ad_category_init() {
     remove_shortcode( "adverts_add" );
     add_shortcode( "adverts_add", "preselect_ad_category_shortcode" );
     add_filter( "shortcode_atts_adverts_list", "preselect_ad_category_atts", 9000 );
+    
+    if( defined( "PRESELECT_AD_CATEGORY_USE_DTD" ) && PRESELECT_AD_CATEGORY_USE_DTD ) {
+        add_filter( "template_redirect", "preselect_ad_category_dtd_redirect" );
+    }
 }
 
 /**
@@ -160,7 +164,7 @@ function preselect_ad_category_shortcode( $atts ) {
     
     if( ! empty( $term_slug ) ) {
         $term = get_term_by( "slug", adverts_request( "preselected_category" ), "advert_category" );
-
+        
         if( ! is_wp_error( $term ) && is_object( $term ) ) {
             $is_preselected = true;
         } 
@@ -218,6 +222,8 @@ function preselect_ad_category_display( $atts ) {
         
     ob_start();
     
+    include_once ADVERTS_PATH . 'includes/shortcodes.php';
+    
     $adverts_flash = array(
         "error" => array( ),
         "info" => array(            
@@ -233,9 +239,14 @@ function preselect_ad_category_display( $atts ) {
 
     <div class="wpjb adverts-widget adverts-widget-categories adverts-widget-multi-level-categories">
         <div class="adverts-grid adverts-grid-compact">
+
             <?php
                 if ( ! empty( $terms ) && ! is_wp_error( $terms ) ):
-                    preselect_ad_category_display_inner( $terms, 0 );
+                    if( defined( "PRESELECT_AD_CATEGORY_USE_DTD" ) && PRESELECT_AD_CATEGORY_USE_DTD ) {
+                        preselect_ad_category_dtd();
+                    } else {
+                        preselect_ad_category_display_inner( $terms, 0 );
+                    }
                 else:
             ?>
             <div class="adverts-grid-row">
@@ -251,6 +262,27 @@ function preselect_ad_category_display( $atts ) {
     <?php
 
     return ob_get_clean();
+}
+
+function preselect_ad_category_dtd() {
+    $field = array(
+        "name" => "preselected_dtd_category",
+        "value" => "",
+        "dtd_use_taxonomy" => "advert_category"
+    );
+    
+    wp_enqueue_script( "adverts-frontend" );
+    wp_enqueue_style( "adverts-frontend" );
+    wp_enqueue_style( "adverts-icons" );
+    
+    ?>
+    <form action="" method="post">
+        <?php wp_nonce_field( "preselected-dtd-category" ) ?>
+        <?php dependant_taxonomy_dropdown( $field ) ?>
+        <input type="submit" value="Select" class="button preselect-ad-category-dtd-submit" />
+    </form>
+
+    <?php
 }
 
 /**
@@ -370,8 +402,34 @@ function preselect_ad_category_atts( $out ) {
         $form_id = get_term_meta( $term_id, "category_form_scheme_search", true );
         
         if( intval( $form_id ) > 0 ) {
+            
+            $form_scheme = get_post( $form_id );
+            
             $out["form_scheme_id"] = $form_id;
+            $out["form_scheme"] = $form_scheme->post_name;
         }
     }
     return $out;
+}
+
+function preselect_ad_category_dtd_redirect( $template ) {
+    
+    if( ! wp_verify_nonce( adverts_request( '_wpnonce' ), 'preselected-dtd-category' ) ) {
+        return $template;
+    }
+    
+    $dtd_category = absint( adverts_request( 'preselected_dtd_category' ) );
+    
+    if( ! is_numeric( $dtd_category ) ) {
+        return $template;
+    }
+    
+    $term = get_term( $dtd_category );
+    
+    if( is_wp_error( $term ) ) {
+        wp_die( __( "Incorrect category ID provided", 'preselect-ad-category' ) );
+    }
+    
+    wp_redirect( add_query_arg( array( "preselected_category" => $term->slug ), get_permalink( get_the_ID() ) ) );
+    exit;
 }

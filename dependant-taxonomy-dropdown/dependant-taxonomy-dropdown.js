@@ -34,6 +34,8 @@ DependantTaxonomyDropdown.prototype.OnChange = function( e ) {
     this.loader.css("display", "inline-block");
     this.wrap.css( "opacity", "0.5" );
     
+    this.HandleSubmit( false );
+    
     jQuery.ajax({
         url: adverts_frontend_lang.ajaxurl,
         type: "post",
@@ -53,4 +55,20 @@ DependantTaxonomyDropdown.prototype.OnChangeSuccess = function( response ) {
     this.hidden.val( response.selected );
     this.wrap.css( "opacity", "1" );
     this.loader.css("display", "none");
+    this.HandleSubmit( response.is_enabled );
+};
+
+DependantTaxonomyDropdown.prototype.HandleSubmit = function( is_enabled ) {
+    
+    if( jQuery( ".preselect-ad-category-dtd-submit").length < 1 ) {
+        return;
+    }
+    
+    if( is_enabled ) {
+        jQuery( ".preselect-ad-category-dtd-submit").attr( "disabled", null );
+        jQuery( ".preselect-ad-category-dtd-submit").css( "opacity", "1" );
+    } else {
+        jQuery( ".preselect-ad-category-dtd-submit").attr( "disabled", "disabled" );
+        jQuery( ".preselect-ad-category-dtd-submit").css( "opacity", "0.6" );
+    }
 };

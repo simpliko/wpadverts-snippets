@@ -44,7 +44,7 @@ function dependant_taxonomy_dropdown_init() {
         'dependant-taxonomy-dropdown', 
         $url  .'/dependant-taxonomy-dropdown/dependant-taxonomy-dropdown.js', 
         array( 'jquery' ), 
-        "1", 
+        "2", 
         true
     );
     
@@ -204,7 +204,7 @@ function dependant_taxonomy_dropdown_ajax() {
     }
     
     $total = count( $tax_ids );
-
+    
     ob_start();
     for( $i = 0; $i < $total; $i++ ) {
         $tax_id = $tax_ids[$i];
@@ -232,8 +232,16 @@ function dependant_taxonomy_dropdown_ajax() {
     }
     $html = ob_get_clean();
     
+    $is_last = $i != $total;
+    $is_enabled = $is_last;
+    
+    if( $id > 0 && get_term_meta( $id, "wpadvert_is_restricted", true ) == "1" ) {
+        $is_enabled = false;
+    }
+    
     $response = new stdClass();
     $response->selected = $id;
+    $response->is_enabled = apply_filters( "dependant_taxonomy_dropdown_is_enabled", $is_enabled, $id, $is_last );
     $response->html = $html;
 
     echo json_encode( $response );
