@@ -72,6 +72,8 @@ function dependant_taxonomy_dropdown( $field ) {
     wp_enqueue_script( 'dependant-taxonomy-dropdown' );
     $value = 0;
 
+    include_once ADVERTS_PATH . '/includes/class-html.php';
+    
     if( is_array( $field["value"] ) && isset( $field["value"][0] ) ) {
         $value = $field["value"][0];
     } else if( isset( $field["value"] ) ) {

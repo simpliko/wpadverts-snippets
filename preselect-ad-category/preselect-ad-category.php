@@ -224,6 +224,9 @@ function preselect_ad_category_display( $atts ) {
     
     include_once ADVERTS_PATH . 'includes/shortcodes.php';
     
+    wp_enqueue_style( "adverts-frontend" );
+    wp_enqueue_style( "adverts-icons" );
+    
     $adverts_flash = array(
         "error" => array( ),
         "info" => array(            
