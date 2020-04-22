@@ -18,7 +18,32 @@
 
 add_action( "init", "dependant_taxonomy_dropdown_init", 1000 );
 add_filter( "adverts_form_load", "dependant_taxonomy_dropdown_form_load", 9999 );
-add_filter( "adverts_form_load", "dependant_taxonomy_dropdown_form_load_search" );
+add_action( "save_post_advert", "dependant_taxonomy_dropdown_save_advert", 20, 3 );
+
+function dependant_taxonomy_dropdown_get( $type = null ) {
+    $arr = array(
+        "advert" => array(
+            "advert_category" => array( "taxonomy" => "advert_category" ),
+            "adverts_location" => array( "taxonomy" => "advert_location" )
+        ),
+        "search" => array(
+            "adverts_category" => array( "taxonomy" => "advert_category" ),
+            "location" => array( "taxonomy" => "advert_location" )
+        )
+    );
+    
+    $filtered = apply_filters( "dependant_taxonomy_dropdown_get", $arr );
+    
+    if( $type === null ) {
+        return $filtered;
+    }
+    
+    if( isset( $filtered[$type] ) ) {
+        return $filtered[$type];
+    } else {
+        return null;
+    }
+}
 
 /**
  * Initiates taxonomy dropdown
@@ -134,9 +159,9 @@ function dependant_taxonomy_dropdown_taxonomies( $taxonomy = "advert_category", 
 }
 
 /**
- * Updates the [adverts_form] scheme
+ * Updates the [adverts_add] and [adverts_list] scheme
  * 
- * Registers the adverts_field_select_dependant field in [adverts_add] form.
+ * Registers the adverts_field_select_dependant field in forms.
  * This function is executed by the adverts_form_load filter.
  * 
  * @see adverts_form_load filter
@@ -146,37 +171,23 @@ function dependant_taxonomy_dropdown_taxonomies( $taxonomy = "advert_category", 
  * @return  array           Updated form scheme
  */
 function dependant_taxonomy_dropdown_form_load( $form ) {
-    if( $form["name"] != "advert" && $form["name"] != "search" ) {
+    
+    $fields = dependant_taxonomy_dropdown_get( $form["name"] );
+    
+    if($fields === null ) {
         return $form;
     }
-
+    
     foreach( $form["field"] as $key => $field ) {
-        if( in_array( $field["name"], array( "adverts_location", "location" ) ) ) {
+        if( isset( $fields[ $field["name"] ] ) ) {
             $form["field"][$key]["type"] = "adverts_field_select_dependant";
             $form["field"][$key]["options_callback"] = null;
             $form["field"][$key]["options"] = array();
-            $form["field"][$key]["dtd_use_taxonomy"] = "advert_location";
+            $form["field"][$key]["dtd_use_taxonomy"] = $fields[ $field["name"] ]["taxonomy"];
         }
     }
     
     return $form;
-}
-
-function dependant_taxonomy_dropdown_form_load_search( $form ) {
-    if( $form["name"] != "search" ) {
-        return $form;
-    }
-    
-    foreach( $form["field"] as $key => $field ) {
-        if( $field["name"] === "advert_category" ) {
-            $form["field"][$key]["type"] = "adverts_field_select_dependant";
-            $form["field"][$key]["options_callback"] = null;
-            $form["field"][$key]["options"] = array();
-            $form["field"][$key]["dtd_use_taxonomy"] = "advert_category";
-        }
-    }
-    
-    return $form; 
 }
 
 /**
@@ -251,25 +262,34 @@ function dependant_taxonomy_dropdown_ajax() {
 }
 
 
-add_action( "save_post_advert", "my_mal_save_advert", 10, 3 );
-function my_mal_save_advert( $post_ID, $post, $update ) {
+
+function dependant_taxonomy_dropdown_save_advert( $post_ID, $post, $update ) {
         
-    if( !isset( $_POST ) || empty( $_POST ) ) {
+    if( ! isset( $_POST ) || empty( $_POST ) ) {
         return;
     }
 
-    if( isset( $_POST['adverts_location'] ) ) {
-        
-        if( ! empty( $_POST['adverts_location'] ) ) {
-            $location = array( intval( $_POST['adverts_location'] ) );
-        } else {
-            $location = null;
+    $fields = dependant_taxonomy_dropdown_get( "advert" );
+    
+    //echo "<pre>"; print_r($fields); print_r($_POST);
+    
+    foreach( $fields as $k => $field ) {
+        if( isset( $_POST[$k] ) ) {
+            
+            if( ! empty( $_POST[$k] ) ) {
+                $location = array( intval( $_POST[$k] ) );
+            } else {
+                $location = null;
+            }
+            //echo "$post_ID, ".print_r($location,true).", {$field['taxonomy']}";
+            $result = wp_set_post_terms( $post_ID, $location, $field['taxonomy'] );
+            //print_r($result);
         }
-        wp_set_post_terms( $post_ID, $location, 'advert_location' );
     }
-    
-    
 }
+
+
+
 add_action( "admin_footer", function() {
     ?>
 <script type="text/javascript">
@@ -279,3 +299,4 @@ add_action( "admin_footer", function() {
 </script>
     <?php
 });
+

@@ -6,7 +6,11 @@ Author: Greg Winiarski
 Description: Handle new taxonomy in Custom Fields add-on
 */
 
-add_action( "init", "custom_fields_taxonomies_init" );
+add_action( "init", function() {
+    new Custom_Fields_Taxonomies_Handler( "hospital", "advert_category");
+}, 100 );
+
+//add_action( "init", "custom_fields_taxonomies_init" );
 
 /**
  * Init new taxonomy and register data source.
