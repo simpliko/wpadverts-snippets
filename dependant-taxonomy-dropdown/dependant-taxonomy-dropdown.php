@@ -24,7 +24,7 @@ function dependant_taxonomy_dropdown_get( $type = null ) {
     $arr = array(
         "advert" => array(
             "advert_category" => array( "taxonomy" => "advert_category" ),
-            "adverts_location" => array( "taxonomy" => "advert_location" )
+            "adverts_location" => array( "taxonomy" => "advert_location", "rename_to" => "advert_location" )
         ),
         "search" => array(
             "adverts_category" => array( "taxonomy" => "advert_category" ),
@@ -92,19 +92,48 @@ function dependant_taxonomy_dropdown_init() {
  * @param array $field
  * @return void
  */
-function dependant_taxonomy_dropdown( $field ) {
+function dependant_taxonomy_dropdown( $field, $form ) {
     
     wp_enqueue_script( 'dependant-taxonomy-dropdown' );
     $value = 0;
 
     include_once ADVERTS_PATH . '/includes/class-html.php';
     
-    if( is_array( $field["value"] ) && isset( $field["value"][0] ) ) {
-        $value = $field["value"][0];
-    } else if( isset( $field["value"] ) ) {
-        $value = $field["value"];
+    $post_id = null;
+    $terms = array();
+    $field_name = $field["name"];
+    $term_ids = array();
+    
+    if( is_admin() && isset( $_GET['post'] ) ) {
+        $post_id = $_GET['post'];
+    } elseif( adverts_request( "_post_id" ) ) {
+        $post_id = adverts_request( "_post_id" );
+    } elseif( adverts_request( "advert_id" ) ) {
+        $post_id = adverts_request( "advert_id" );
+    } elseif( isset( $field["meta"]["object_id"] ) ) {
+        $post_id = $field["meta"]["object_id"];
     }
-
+    
+    if( $post_id !== null ) {
+        $terms_array = wp_get_post_terms( $post_id, $field["dtd_use_taxonomy"] );
+        
+        if( is_array( $terms_array ) ) {
+            foreach( $terms_array as $l ) {
+                $term_ids[] = $l->term_id;
+            }
+        }
+    }
+    
+    if( $_SERVER['REQUEST_METHOD'] == 'POST' && adverts_request( $field["dtd_use_taxonomy"] ) ) {
+        $terms_ids = adverts_request( $field["dtd_use_taxonomy"] );
+    }
+    
+    if( isset( $term_ids[0] ) ) {
+        $value = $term_ids[0];
+    } else {
+        $value = "";
+    }
+    
     echo '<style type="text/css">
     label[for="'.$field["name"].'"] { float: left !important }
     .dependant-taxonomy-dropdown > select { width: 92% !important; margin: 0 0 5px 0 }
@@ -180,6 +209,9 @@ function dependant_taxonomy_dropdown_form_load( $form ) {
     
     foreach( $form["field"] as $key => $field ) {
         if( isset( $fields[ $field["name"] ] ) ) {
+            if( isset( $fields[ $field["name"] ]["rename_to"] ) ) {
+                $form["field"][$key]["name"] = $fields[ $field["name"] ]["rename_to"];
+            }
             $form["field"][$key]["type"] = "adverts_field_select_dependant";
             $form["field"][$key]["options_callback"] = null;
             $form["field"][$key]["options"] = array();
@@ -287,8 +319,6 @@ function dependant_taxonomy_dropdown_save_advert( $post_ID, $post, $update ) {
         }
     }
 }
-
-
 
 add_action( "admin_footer", function() {
     ?>
