@@ -92,7 +92,7 @@ function dependant_taxonomy_dropdown_init() {
  * @param array $field
  * @return void
  */
-function dependant_taxonomy_dropdown( $field, $form ) {
+function dependant_taxonomy_dropdown( $field ) {
     
     wp_enqueue_script( 'dependant-taxonomy-dropdown' );
     $value = 0;
