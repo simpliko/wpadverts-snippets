@@ -130,8 +130,8 @@ function dependant_taxonomy_dropdown( $field ) {
     
     if( isset( $term_ids[0] ) ) {
         $value = $term_ids[0];
-    } else {
-        $value = "";
+    } elseif( isset( $field["value"] ) ) {
+        $value = $field["value"];
     }
     
     echo '<style type="text/css">
