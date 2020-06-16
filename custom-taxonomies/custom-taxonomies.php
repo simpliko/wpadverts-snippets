@@ -79,13 +79,17 @@ function custom_taxonomies_form_load( $form ) {
     
     if( $form['name'] == "advert" && $pagenow != "post.php" ) {
         $form["field"][] = array(
-            "name" => "advert_example",
+            "name" => "advert_example_tax",
             "type" => "adverts_field_select",
             "order" => 20,
             "label" => __( "Taxonomy Example", "adverts" ),
             "max_choices" => 10,
             "options" => array(),
-            "options_callback" => "custom_taxonomies_options"
+            "options_callback" => "custom_taxonomies_options",
+            "save" => array(
+                "method" => "taxonomy",
+                "taxonomy" => "advert_example"
+            )
         );
     }
     
@@ -131,7 +135,7 @@ function custom_taxonomies_tpl_single_details( $post_id ) {
         </div>
         <div class="adverts-grid-col adverts-col-65">
             <?php foreach( $terms as $term ): ?>
-            <a href="<?php echo esc_attr( get_term_link( $term ) ) ?>"><?php echo join( " / ", advert_category_path( $term ) ) ?></a><br/>
+            <a href="<?php echo esc_attr( get_term_link( $term ) ) ?>"><?php echo join( " / ", advert_term_path( $term, 'advert_example' ) ) ?></a><br/>
             <?php endforeach; ?>
         </div>
     </div>
@@ -155,12 +159,14 @@ function custom_taxonomies_query( $args ) {
         return $args;
     }
     
-    $args["tax_query"] = array(
-        array(
-            'taxonomy' => 'advert_example',
-            'field'    => 'term_id',
-            'terms'    => adverts_request( "advert_example" ),
-        ),
+    if( ! isset( $args["tax_query"] ) || ! is_array( $args["tax_query"] ) ) {
+        $args["tax_query"] = array();
+    }
+    
+    $args["tax_query"][] = array(
+        'taxonomy' => 'advert_example',
+        'field'    => 'term_id',
+        'terms'    => adverts_request( "advert_example" )
     );
     
     return $args;
