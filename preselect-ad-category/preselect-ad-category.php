@@ -312,7 +312,8 @@ function preselect_ad_category_display_inner( $terms, $level = 0 ) {
         ?>
         <div class="adverts-grid-row">
             <div class="adverts-col-100">
-                <span class="adverts-widget-grid-link <?php echo "adverts-icon-".$icon ?>">
+                <span class="adverts-widget-grid-link <?php echo apply_filters("adverts_category_font_icon", "adverts-icon-".$icon, $term_item, "small") ?>">
+                    <?php do_action( "adverts_category_pre_title", $term_item, "small") ?>
                     <?php if( get_term_meta( $term_item->term_id, "wpadvert_is_restricted", true ) ): ?>
                     <?php echo esc_html($term_item->name) ?>
                     <?php else: ?>
@@ -435,4 +436,5 @@ function preselect_ad_category_dtd_redirect( $template ) {
     
     wp_redirect( add_query_arg( array( "preselected_category" => $term->slug ), get_permalink( get_the_ID() ) ) );
     exit;
+    the_author();
 }

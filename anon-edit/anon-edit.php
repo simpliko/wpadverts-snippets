@@ -58,7 +58,7 @@ class AnonEdit {
         
         // You can remove the line below if Yoast SEO Link Watchers function is disabled.
         remove_all_filters( 'save_post' );
-
+        remove_all_filters( 'the_content' );
         
         $message = 'You are editing Ad <a href="%s">%s</a>. No longer actual? <a href="%s" class="wpad-delete-now adverts-icon-trash">delete now</a>.';
         

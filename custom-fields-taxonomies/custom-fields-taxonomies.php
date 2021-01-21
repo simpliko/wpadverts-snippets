@@ -6,11 +6,9 @@ Author: Greg Winiarski
 Description: Handle new taxonomy in Custom Fields add-on
 */
 
-add_action( "init", function() {
-    new Custom_Fields_Taxonomies_Handler( "hospital", "advert_category");
-}, 100 );
+add_action( "init", "custom_fields_taxonomies_init" );
 
-//add_action( "init", "custom_fields_taxonomies_init" );
+add_filter( "adverts_form_load", "custom_fields_taxonomies_form_load" );
 
 /**
  * Init new taxonomy and register data source.
@@ -43,9 +41,30 @@ function custom_fields_taxonomies_init() {
         "taxonomy" => "taxonomy_example"
     ));
 
+    return;
+
     // Connect taxonomy to a field in [adverts_add] form.
     new Custom_Fields_Taxonomies_Handler( "taxonomy_test", "taxonomy_example");
 }
+
+function custom_fields_taxonomies_form_load( $form ) {
+    if( $form["name"] != "advert" ) {
+        return $form;
+    }
+    
+    $form["field"][] = array(
+        "name" => "test_tax_example",
+        "type" => "adverts_field_select",
+        "label" => "Taxonomy Example",
+        "options_callback" => "wpadverts_custom_fields_data_source_default_taxonomy",
+        "options_callback_params" => array( "taxonomy" => "taxonomy_example" ),
+        "save" => array( "method" => "taxonomy", "taxonomy" => "taxonomy_example" )
+    );
+    
+    return $form;
+}
+
+return;
 
 /**
  * Data source function for taxonomy-example data source.

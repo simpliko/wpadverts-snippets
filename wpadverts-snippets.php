@@ -16,7 +16,13 @@ function wpadverts_snippet_run( $snippet ) {
     }
 }
 
-define( "PRESELECT_AD_CATEGORY_USE_DTD", 1 );
+//define( "PRESELECT_AD_CATEGORY_USE_DTD", 1 );
 
+
+//wpadverts_snippet_run('custom-taxonomies');
 //wpadverts_snippet_run('dependant-taxonomy-dropdown');
-//wpadverts_snippet_run('preselect-ad-category');
+wpadverts_snippet_run('preselect-ad-category');
+//wpadverts_snippet_run('anon-edit');
+//wpadverts_snippet_run('search-by-price');
+//wpadverts_snippet_run('cpt-caps');
+//wpadverts_snippet_run( 'custom-fields-taxonomies' );
