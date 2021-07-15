@@ -27,6 +27,8 @@ function override_templates( $tpl ) {
     $dirs = array();
     // take the custom templates that Joe built
     $dirs[] = $upload_dir["basedir"] . "/wpadverts/";
+    // check in the child-theme folder
+    $dirs[] = get_stylesheet_directory() . "/wpadverts/";
     // next check in parent theme directory
     $dirs[] = get_template_directory() . "/wpadverts/";
     // if nothing else use default template
