@@ -36,5 +36,7 @@ function wpadverts_snippet_run( $snippet ) {
 //wpadverts_snippet_run( 'honeypot' );
 //wpadverts_snippet_run( 'timetrap' );
 //wpadverts_snippet_run( 'change-author-details' );
+//wpadverts_snippet_run( 'gallery-touch-support' );
+wpadverts_snippet_run( 'pvc-integration' );
 
 
