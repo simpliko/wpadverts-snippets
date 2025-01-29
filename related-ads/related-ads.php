@@ -48,7 +48,22 @@ function related_ads_list_query( $args ) {
     $args["post__not_in"] = array($post->ID);
     
     // search by keyword
-    $args["s"] = $post->post_title;
+    //$args["s"] = $post->post_title;
+
+    // search by category
+    $ids = [];
+    $fields = wp_get_post_terms( get_the_ID(), 'advert_category' );
+    foreach( $fields as $field ) {
+        $ids[] = $field->term_id;
+    }
+
+    $args["tax_query"] = [
+        [
+            'taxonomy' => 'advert_category',
+            'field' => 'term_id',
+            'terms' => $ids,
+        ]
+    ];
     
     remove_filter( "adverts_list_query", "related_ads_list_query" );
     return $args;

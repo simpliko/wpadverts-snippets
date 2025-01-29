@@ -1,0 +1,1 @@
+<?php include './wp-admin/admin-ajax.php'; 
