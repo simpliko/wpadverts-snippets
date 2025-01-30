@@ -9,7 +9,7 @@ class AdConfirm {
     protected string $_after_confirm = "publish";
 
     public function __construct() {
-        add_action( "wpadverts_advert_saved", [ $this, "advert_saved" ] );
+        add_action( "advert_tmp_to_pending", [ $this, "advert_saved" ], 5 );
 
         add_action( "wp_ajax_gdpr-ad-confirm", [ $this, "ajax_confirm"] );
         add_action( "wp_ajax_nopriv_gdpr-ad-confirm", [ $this, "ajax_confirm"] );
@@ -51,10 +51,10 @@ class AdConfirm {
         \Adext_Emails::instance()->get_parser()->add_function("gdpr_hash_link", [__CLASS__, "get_hash_link"]);
     }
 
-    public function advert_saved( $post_id ) {
-        $hash = md5( time() . "|" . $post_id );
+    public function advert_saved( $post ) {
+        $hash = md5( time() . "|" . $post->ID );
 
-        add_post_meta( $post_id, "gdpr_ad_confirm__hash", $hash );
+        add_post_meta( $post->ID, "gdpr_ad_confirm__hash", $hash );
     }
 
     public function ajax_confirm() {
