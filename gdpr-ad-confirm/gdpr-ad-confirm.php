@@ -4,6 +4,7 @@
  * Plugin URI: http://wpadverts.com/
  * Description: Compliance for German GDPR rules, the extension requires user to confirm Ad via email.
  * Author: Greg Winiarski
+ * Version: 1.1.0
  */
 
  add_action( "plugins_loaded", function() {
