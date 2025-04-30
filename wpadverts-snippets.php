@@ -39,6 +39,6 @@ function wpadverts_snippet_run( $snippet ) {
 //wpadverts_snippet_run( 'gallery-touch-support' );
 //wpadverts_snippet_run( 'pvc-integration' );
 //wpadverts_snippet_run( 'demo-data' );
-wpadverts_snippet_run(( 'gdpr-ad-confirm' ) );
+//wpadverts_snippet_run(( 'gdpr-ad-confirm' ) );
 
 

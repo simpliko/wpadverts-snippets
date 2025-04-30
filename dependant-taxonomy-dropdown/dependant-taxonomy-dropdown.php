@@ -4,6 +4,7 @@
  * Plugin URI: http://wpadverts.com/
  * Description: Replaces taxonomy dropdown (for example Category) in [adverts_add] form with dependend AJAX drop-downs.
  * Author: Greg Winiarski
+ * Version: 2
  */
 
 /**
@@ -69,10 +70,14 @@ function dependant_taxonomy_dropdown_init() {
         'dependant-taxonomy-dropdown', 
         $url  .'/dependant-taxonomy-dropdown/dependant-taxonomy-dropdown.js', 
         array( 'jquery' ), 
-        "2", 
+        "3", 
         true
     );
     
+    wp_localize_script('dependant-taxonomy-dropdown', 'dependant_taxonomy_dropdown', [
+        'ajaxurl' => admin_url( 'admin-ajax.php' )
+    ]);
+
     adverts_form_add_field("adverts_field_select_dependant", array(
         "renderer" => "dependant_taxonomy_dropdown",
         "callback_save" => "adverts_save_multi",
@@ -83,6 +88,10 @@ function dependant_taxonomy_dropdown_init() {
     add_action('wp_ajax_nopriv_dependant_taxonomy_dropdown', 'dependant_taxonomy_dropdown_ajax');
 }
 
+function dependant_taxonomy_dropdown_block( $field ) {
+    return dependant_taxonomy_dropdown( $field, true );
+}
+
 /**
  * Dependant Taxonomy Dropdown Field HTML
  * 
@@ -90,9 +99,10 @@ function dependant_taxonomy_dropdown_init() {
  * 
  * @since 1.0
  * @param array $field
+ * @param bool $is_block
  * @return void
  */
-function dependant_taxonomy_dropdown( $field ) {
+function dependant_taxonomy_dropdown( $field, $is_block = false ) {
     
     wp_enqueue_script( 'dependant-taxonomy-dropdown' );
     $value = 0;
@@ -134,10 +144,16 @@ function dependant_taxonomy_dropdown( $field ) {
         $value = $field["value"];
     }
     
-    echo '<style type="text/css">
-    label[for="'.$field["name"].'"] { float: left !important }
-    .dependant-taxonomy-dropdown > select { width: 92% !important; margin: 0 0 5px 0 }
-    </style>';
+    if(!$is_block ) {
+        echo '<style type="text/css">
+        label[for="'.$field["name"].'"] { float: left !important }
+        .dependant-taxonomy-dropdown > select { width: 92% !important; margin: 0 0 5px 0 }
+        </style>';
+    } else {
+        echo '<style type="text/css">
+        .dependant-taxonomy-dropdown > select { width: 100%; margin: 0 0 5px 0 }
+        </style>';
+    }
     echo '<div class="dependant-taxonomy-dropdown-ui" data-taxonomy="'.$field["dtd_use_taxonomy"].'">';
     echo '<div class="dependant-taxonomy-dropdown"></div>';
     adverts_field_hidden( array(

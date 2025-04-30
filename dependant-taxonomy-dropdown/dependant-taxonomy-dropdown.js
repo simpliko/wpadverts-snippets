@@ -37,7 +37,7 @@ DependantTaxonomyDropdown.prototype.OnChange = function( e ) {
     this.HandleSubmit( false );
     
     jQuery.ajax({
-        url: adverts_frontend_lang.ajaxurl,
+        url: dependant_taxonomy_dropdown.ajaxurl,
         type: "post",
         dataType: "json",
         data: {
